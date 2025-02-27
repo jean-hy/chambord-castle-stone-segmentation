@@ -56,3 +56,5 @@ models/*.pth
 
 # Optional: Data
 data/raw
+data/patches
+
