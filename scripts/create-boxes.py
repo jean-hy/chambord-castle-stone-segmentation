@@ -29,7 +29,7 @@ def draw_rectangle(event, x, y, flags, param):
         cv2.imshow("image", img)
 
 # Load your image
-img = cv2.imread("../data/refined/img-stones/FSE_35_004.jpg")
+img = cv2.imread("../data/refined/img-stones/FNE_24_778.jpg")
 if img is None:
     print("Error: Could not load image!")
     exit()
