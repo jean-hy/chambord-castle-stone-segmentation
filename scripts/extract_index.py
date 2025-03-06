@@ -17,15 +17,15 @@ def extract_index(filename: str, prefix: str) -> str:
 def main():
     # Define directories relative to this script's location.
     script_dir = Path(__file__).resolve().parent
-    images_dir = script_dir.parent / "data" / "patches-images-filter" / "final-images-without-filter"
-    masks_dir = script_dir.parent / "data" / "patches-images-filter" / "final-patches-filter"
+    # images_dir = script_dir.parent / "data" / "patches-images-filter" / "final-images-without-filter"
+    # masks_dir = script_dir.parent / "data" / "patches-images-filter" / "final-patches-filter"
 
     # Define output directories for common pairs using the new folder name.
-    output_dir = script_dir.parent / "data" / "patches-images-filter" / "final-patch-with-corresponding-image-filter"
-    images_out = output_dir / "final-images"
-    masks_out = output_dir / "final-patches"
-    images_out.mkdir(parents=True, exist_ok=True)
-    masks_out.mkdir(parents=True, exist_ok=True)
+    # output_dir = script_dir.parent / "data" / "patches-images-filter" / "final-patch-with-corresponding-image-filter"
+    # images_out = output_dir / "final-images"
+    # masks_out = output_dir / "final-patches"
+    # images_out.mkdir(parents=True, exist_ok=True)
+    # masks_out.mkdir(parents=True, exist_ok=True)
 
     # Build dictionaries mapping index -> file path for images and masks.
     images_dict = {}
