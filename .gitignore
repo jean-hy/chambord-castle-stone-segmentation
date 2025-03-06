@@ -54,7 +54,10 @@ Thumbs.db
 # Model checkpoints (large binary files)
 models/*.pth
 
-# Optional: Data
+# Data is large and should be excluded
+data/*
 data/raw
 data/patches
+data/refined
+data/segmented
 
