@@ -3,6 +3,8 @@ from PIL import Image
 import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as T
+import numpy as np
+
 
 class StoneDataset(Dataset):
     def __init__(self, image_dir, mask_dir, transform=None):
@@ -33,10 +35,6 @@ class StoneDataset(Dataset):
         return image, mask
 
 class JointTransform:
-    """
-    Example joint transform for images and masks.
-    We can add more augmentations here (e.g. random flips, color jitter).
-    """
     def __init__(self, resize=(256, 256)):
         self.image_transform = T.Compose([
             T.Resize(resize),
@@ -46,7 +44,8 @@ class JointTransform:
         ])
         self.mask_transform = T.Compose([
             T.Resize(resize, interpolation=T.InterpolationMode.NEAREST),
-            T.ToTensor()  # Will produce a 0-1 mask
+            # Convert mask to a numpy array, normalize to {0,1} then to a long tensor
+            lambda img: torch.as_tensor((np.array(img) // 255), dtype=torch.long)
         ])
 
     def __call__(self, image, mask):
