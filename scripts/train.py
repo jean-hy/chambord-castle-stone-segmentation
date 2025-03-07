@@ -15,16 +15,22 @@ from models.segformer import get_segformer_b5
 
 def dice_coeff(pred, target, smooth=1e-6):
     """
-    Compute the Dice coefficient.
+    Compute the Dice coefficient for multi-class predictions using argmax.
+    
     Args:
-        pred (Tensor): Model predictions.
-        target (Tensor): Ground truth masks.
-        smooth (float): Smoothing factor to avoid division by zero.
+        pred (Tensor): Logits output from the model, shape [B, num_classes, H, W].
+        target (Tensor): Ground truth mask with class labels, shape [B, H, W].
+        smooth (float): Smoothing factor.
+        
     Returns:
         float: Dice coefficient.
     """
-    pred = torch.sigmoid(pred)
-    pred = (pred > 0.5).float()
+    # Convert logits to probabilities, then to discrete predictions.
+    pred = torch.softmax(pred, dim=1)
+    pred = pred.argmax(dim=1)  # shape: [B, H, W]
+    pred = pred.float()
+    target = target.float()
+    
     intersection = (pred * target).sum()
     dice = (2.0 * intersection + smooth) / (pred.sum() + target.sum() + smooth)
     return dice
@@ -33,15 +39,20 @@ def dice_coeff(pred, target, smooth=1e-6):
 def iou_score(pred, target, smooth=1e-6):
     """
     Compute the Intersection over Union (IoU) score.
+    
     Args:
-        pred (Tensor): Model predictions.
-        target (Tensor): Ground truth masks.
+        pred (Tensor): Logits output from the model, shape [B, num_classes, H, W].
+        target (Tensor): Ground truth mask with class labels, shape [B, H, W].
         smooth (float): Smoothing factor.
+        
     Returns:
         float: IoU score.
     """
-    pred = torch.sigmoid(pred)
-    pred = (pred > 0.5).float()
+    pred = torch.softmax(pred, dim=1)
+    pred = pred.argmax(dim=1)  # shape: [B, H, W]
+    pred = pred.float()
+    target = target.float()
+    
     intersection = (pred * target).sum()
     union = pred.sum() + target.sum() - intersection
     iou = (intersection + smooth) / (union + smooth)
@@ -54,7 +65,7 @@ def train_model(model, dataloaders, criterion, optimizer, device="cpu", num_epoc
     
     Args:
         model (nn.Module): The segmentation model.
-        dataloaders (dict): Dictionary containing 'train' and 'val' DataLoaders.
+        dataloaders (dict): Dictionary with 'train' and 'val' DataLoaders.
         criterion (nn.Module): Loss function.
         optimizer (optim.Optimizer): Optimizer.
         device (str): Device to run training on ('cpu' or 'cuda').
@@ -88,11 +99,11 @@ def train_model(model, dataloaders, criterion, optimizer, device="cpu", num_epoc
 
                 with torch.set_grad_enabled(phase == "train"):
                     outputs = model(inputs)
-                    # If the model returns a dict (e.g., for SegFormer), extract the logits
+                    # If the model returns a dict (e.g., for SegFormer), extract the logits.
                     if isinstance(outputs, dict) and "logits" in outputs:
                         outputs = outputs["logits"]
 
-                    # Upsample outputs to match the target mask resolution if needed
+                    # Upsample outputs to match target mask resolution if needed.
                     if outputs.shape[-2:] != masks.shape[-2:]:
                         outputs = F.interpolate(
                             outputs,
@@ -107,7 +118,7 @@ def train_model(model, dataloaders, criterion, optimizer, device="cpu", num_epoc
                         loss.backward()
                         optimizer.step()
 
-                    # Calculate metrics
+                    # Calculate metrics.
                     dice = dice_coeff(outputs, masks)
                     iou = iou_score(outputs, masks)
 
@@ -127,11 +138,13 @@ def train_model(model, dataloaders, criterion, optimizer, device="cpu", num_epoc
 
 
 def main():
-    # 1. Define paths to the augmented images and masks
+    # 1. Define paths to the augmented images and masks (relative to the project root)
     image_dir = "data/augmented/images"
     mask_dir = "data/augmented/masks"
 
-    # 2. Create the dataset using joint transformations
+    # 2. Create the dataset using joint transformations.
+    # NOTE: Ensure your JointTransform (in data_loader.py) converts mask pixel values (e.g., 0, 255)
+    # to {0, 1} and casts them to a long tensor.
     dataset = StoneDataset(
         image_dir=image_dir,
         mask_dir=mask_dir,
@@ -143,28 +156,25 @@ def main():
     val_size = len(dataset) - train_size
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
-    # 4. Create DataLoaders for training and validation
+    # 4. Create DataLoaders for training and validation.
     train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False)
     dataloaders = {"train": train_loader, "val": val_loader}
 
-    # 5. Choose a model
-    # Uncomment the model you wish to use:
+    # 5. Choose a model (uncomment the model you wish to use)
     # model = get_deeplabv3_plus(num_classes=2)
     # model = get_segnet(num_classes=2)
     model = get_segformer_b5(num_classes=2)
 
-    # 6. Define the loss function and optimizer
+    # 6. Define the loss function and optimizer.
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-    # 7. Train the model
+    # 7. Train the model.
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    trained_model = train_model(
-        model, dataloaders, criterion, optimizer, device=device, num_epochs=25
-    )
+    trained_model = train_model(model, dataloaders, criterion, optimizer, device=device, num_epochs=25)
 
-    # 8. Save the trained model
+    # 8. Save the trained model.
     save_path = "models/segformer_b5_stone.pth"
     torch.save(trained_model.state_dict(), save_path)
     print(f"Model saved to {save_path}")
@@ -172,3 +182,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

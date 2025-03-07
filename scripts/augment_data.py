@@ -12,10 +12,10 @@ import albumentations as A
 
 def main():
     # Define directories for original images/masks and augmented outputs
-    orig_img_dir = '../data/patches/patches-images/final-images'
-    orig_mask_dir = '../data/patches/patches-images/final-patches'
-    aug_img_dir = '../data/patches/patches-images/augmented-images'
-    aug_mask_dir = '../data/patches/patches-images/augmented-patches'
+    orig_img_dir = '../data/patches/images'
+    orig_mask_dir = '../data/patches/masks'
+    aug_img_dir = '../data/augmented/images'
+    aug_mask_dir = '../data/augmented/masks'
 
     # Create output directories if they do not exist
     os.makedirs(aug_img_dir, exist_ok=True)
