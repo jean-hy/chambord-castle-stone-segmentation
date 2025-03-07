@@ -54,7 +54,7 @@ def train_model(model, dataloaders, criterion, optimizer, device='cpu', num_epoc
 
                 with torch.set_grad_enabled(phase == 'train'):
                     outputs = model(inputs)
-                    # Depending on model output, you might need outputs['logits'] (SegFormer)
+                    # Depending on our model output, we might need outputs['logits'] (SegFormer)
                     if isinstance(outputs, dict) and 'logits' in outputs:
                         outputs = outputs['logits']
 
@@ -84,10 +84,10 @@ def train_model(model, dataloaders, criterion, optimizer, device='cpu', num_epoc
 
 # ---------- Main ----------
 if __name__ == "__main__":
-    # 1. Paths to your images and masks
-    image_dir = "data/patches/images"  # Adjust to your actual path
-    mask_dir = "data/patches/masks"    # Adjust to your actual path
-
+    # 1. Paths to the images and masks
+    image_dir = "data/augmented/images"
+    mask_dir = "data/augmented/masks"
+    
     # 2. Create Dataset
     dataset = StoneDataset(image_dir, mask_dir, transform=JointTransform(resize=(256, 256)))
 
