@@ -17,7 +17,10 @@ class StoneDataset(Dataset):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.transform = transform
-        self.images = sorted(os.listdir(image_dir))  
+        # To ignore hidden files (like .DS_Store on macOS)
+        # and sort the files to ensure consistent ordering
+        self.images = sorted([f for f in os.listdir(image_dir) if not f.startswith('.')])
+
 
     def __len__(self):
         return len(self.images)
