@@ -99,11 +99,11 @@ def train_model(model, dataloaders, criterion, optimizer, device="cpu", num_epoc
 
                 with torch.set_grad_enabled(phase == "train"):
                     outputs = model(inputs)
-                    # If the model returns a dict (e.g., for SegFormer), extract the logits.
+                    # If the model returns a dict (e.g., for SegFormer),  we extract the logits.
                     if isinstance(outputs, dict) and "logits" in outputs:
                         outputs = outputs["logits"]
 
-                    # Upsample outputs to match target mask resolution if needed.
+                    
                     if outputs.shape[-2:] != masks.shape[-2:]:
                         outputs = F.interpolate(
                             outputs,
@@ -138,13 +138,11 @@ def train_model(model, dataloaders, criterion, optimizer, device="cpu", num_epoc
 
 
 def main():
-    # 1. Define paths to the augmented images and masks (relative to the project root)
+    # 1. Define paths to the augmented images and masks 
     image_dir = "data/augmented/images"
     mask_dir = "data/augmented/masks"
 
     # 2. Create the dataset using joint transformations.
-    # NOTE: Ensure your JointTransform (in data_loader.py) converts mask pixel values (e.g., 0, 255)
-    # to {0, 1} and casts them to a long tensor.
     dataset = StoneDataset(
         image_dir=image_dir,
         mask_dir=mask_dir,
@@ -161,7 +159,7 @@ def main():
     val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False)
     dataloaders = {"train": train_loader, "val": val_loader}
 
-    # 5. Choose a model (uncomment the model you wish to use)
+    # 5. Choose a model 
     # model = get_deeplabv3_plus(num_classes=2)
     # model = get_segnet(num_classes=2)
     model = get_segformer_b5(num_classes=2)
