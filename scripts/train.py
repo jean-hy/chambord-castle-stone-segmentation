@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, random_split
 
 # Import our dataset and transforms
 from scripts.data_loader import StoneDataset, JointTransform
-# Import models (uncomment the model you wish to use)
+# Import models
 from models.deeplabv3plus import get_deeplabv3_plus
 from models.segnet import get_segnet
 from models.segformer import get_segformer_b5
