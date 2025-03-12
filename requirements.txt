@@ -7,3 +7,7 @@ matplotlib
 opencv-python
 supervision
 albumentations
+tensorflow 
+tensorflow-macos  # If using Apple Silicon (M1, M2, M3)
+tensorflow-metal  # For GPU acceleration on Apple Silicon
+scikit-learn  

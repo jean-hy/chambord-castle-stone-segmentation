@@ -61,3 +61,6 @@ data/patches
 data/refined
 data/segmented
 
+
+# test folder
+test/*
