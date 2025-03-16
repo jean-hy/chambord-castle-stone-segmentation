@@ -60,7 +60,8 @@ data/raw
 data/patches
 data/refined
 data/segmented
-
+data/annotations
+data/annotations/boxe.json
 
 # test folder
 test/*
